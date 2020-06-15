@@ -23,3 +23,5 @@ This script pulls all agent-based backup information accessible on the VBR serve
 * Run script:
 
 `.\New-Veeam-Agent-Backups-Report.ps1`
+
+![Report Sample](sample.png)
