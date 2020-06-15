@@ -36,8 +36,7 @@
 ##### USER VARIABLES BELOW :: PLEASE ADJUST FOR YOUR ENVIRONMENT #####
 
 # VBR Server (Server Name, FQDN or IP)
-#$vbrServer = "yourVBRserver"
-$vbrServer = "veeam.arsano.lab"
+$vbrServer = "yourVBRserver"
 # Report Title
 $rptTitle = "Veeam Agent-based Backups Report"
 # Show VBR Server name in report header
@@ -68,7 +67,7 @@ If ($OpenConnection -ne $vbrServer){
   Try {
     Connect-VBRServer -server $vbrServer -ErrorAction Stop
   } Catch {
-    Write-Host "Unable to connect to VBR server - $vbrServer" -ForegroundColor Red
+    Write-Error "Unable to connect to VBR server - $vbrServer" -ForegroundColor Red
     exit
   }
 }
@@ -92,8 +91,8 @@ $backups = Get-VBRBackup
 
 # Looping through each job
 foreach ($job in $jobs){
-    # Matching backup with job ID
-    $backup = $backups | ?{$_.JobId -eq $job.id}
+    # Matching child job agent backups with job ID
+    $childBackups = $backups | ?{($_.BackupPolicyTag -eq $job.id) -and ($_.IsChildBackup -eq $true)}
 
     # Parsing backup sessions
     $job_sessions = $sessions |?{$_.JobId -eq $job.Id}
@@ -147,13 +146,10 @@ foreach ($job in $jobs){
         $session_info += $object
     }  #end day loop
 
-    # Retrieving all child jobs
-    $childJobs = $backup.FindChildBackups()
-
-    # Looping through each child job
-    foreach ($childJob in $childJobs){
+    # Looping through each child backup
+    foreach ($backup in $childBackups){
         # Looping through each file
-        $files = $childJob.GetAllStorages()
+        $files = $backup.GetAllStorages()
         foreach ($file in $files | Sort-Object CreationTime -Descending){
             # Checking for GFS
             if ($file.GfsPeriod -eq "None"){ $gfs = $false }
@@ -166,7 +162,7 @@ foreach ($job in $jobs){
             # Capturing metrics
             $object = [PSCustomObject] @{
                 JobId = $job.id
-                ChildJobId = $childJob.id
+                ChildJobId = $backup.id
                 CreationTime = Get-Date -Month $file.CreationTime.Month -Day $file.CreationTime.Day -Year $file.CreationTime.Year -Hour 0 -Minute 0 -Second 0
                 Incremental = $file.IsIncrementalFast
                 Full = $file.IsFull
@@ -180,12 +176,12 @@ foreach ($job in $jobs){
         }  #end file loop
 
         # Looping through each restore point
-        $rps = $childJob.GetPoints()
+        $rps = $backup.GetPoints()
         foreach ($rp in $rps | Sort-Object CreationTime -Descending){
             # Capturing metrics
             $object = [PSCustomObject] @{
                 JobId = $job.id
-                ChildJobId = $childJob.id
+                ChildJobId = $backup.id
                 RestorePointId = $rp.id
                 CreationTime = Get-Date -Month $rp.CreationTime.Month -Day $rp.CreationTime.Day -Year $rp.CreationTime.Year -Hour 0 -Minute 0 -Second 0
                 Incremental = $rp.IsIncremental
@@ -275,7 +271,7 @@ $footerObj = @"
 "@
 
 # Determining all dates
-$dates = $rp_info | %{$_.CreationTime -f 'M/d/yyyy'} | Select -Unique
+$dates = $rp_info | Sort-Object CreationTime -Descending | %{$_.CreationTime -f 'M/d/yyyy'} | Select-Object -Unique
 $dates = $dates | %{Get-Date $_} | %{$_.Tostring("M/d/yyyy")}  #dirty but required to get unique dates
 
 # Initializing table & column header
@@ -338,6 +334,12 @@ foreach ($job in $jobs){
         # Add color to output depending on results
         switch ($true)
         {
+            # Failed
+            (($count -eq 0) -and ($session.FailedResult -gt 0)) {
+                $body += $subHead01err
+                #Write-Host "Result: FAILED"
+                break
+            }
             # Success
             (($session.SuccessResult -ge $count) -and ($session.Overtime -ne $true)) {
                 $body += $subHead01suc
