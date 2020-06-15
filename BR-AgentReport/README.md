@@ -6,11 +6,11 @@ Chris Arceneaux (@chris_arceneaux)
 
 ## Function
 
-This script will allows you to pull all agent-based backup information accessible on the VBR server and generate a report from it.
+This script pulls all agent-based backup information accessible on the VBR server and generates a report from it.
 
 ## Known Issues
 
-* Script is designed to be executed on VBR server. Added code can be easily added to execute remotely.
+* Script is designed to be executed on VBR server. Code can be easily added to execute remotely.
 
 ## Requirements
 
@@ -20,6 +20,6 @@ This script will allows you to pull all agent-based backup information accessibl
 ## Usage
 
 * Edit script and configure *User Variables*
-* Run script
+* Run script:
 
 `.\New-Veeam-Agent-Backups-Report.ps1`
