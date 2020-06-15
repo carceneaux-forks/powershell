@@ -1,36 +1,36 @@
 <#
 .SYNOPSIS
-	Veeam Agent-based backup reporting script
+    Veeam Agent-based backup reporting script
 
 .DESCRIPTION
-	This script will allows you to pull all agent-based backup
+    This script will allows you to pull all agent-based backup
     information accessible on the VBR server and generate a report from it.
 
 .OUTPUTS
-	HTML report
+    HTML report
 
 .EXAMPLE
-	.\New-Veeam-Agent-Backups-Report.ps1
+    .\New-Veeam-Agent-Backups-Report.ps1
 
-	Description
-	-----------
-	Run script from (an elevated) PowerShell console
+    Description
+    -----------
+    Run script from (an elevated) PowerShell console
 
 .NOTES
-	NAME:  New-Veeam-Agent-Backups-Report.ps1
-	VERSION: 1.0
-	AUTHOR: Chris Arceneaux
-	TWITTER: @chris_arceneaux
-	GITHUB: https://github.com/carceneaux
+    NAME:  New-Veeam-Agent-Backups-Report.ps1
+    VERSION: 1.0
+    AUTHOR: Chris Arceneaux
+    TWITTER: @chris_arceneaux
+    GITHUB: https://github.com/carceneaux
     CREDIT: Shawn Masterson - https://www.linkedin.com/in/smmasterson/
 
     Testing environment: Veeam Backup & Replication 10
 
 .LINK
-	https://arsano.ninja/
+    https://arsano.ninja/
 
 .LINK
-	https://helpcenter.veeam.com/docs/backup/powershell/veeam_agent_management.html?ver=100
+    https://helpcenter.veeam.com/docs/backup/powershell/veeam_agent_management.html?ver=100
 #>
 
 ##### USER VARIABLES BELOW :: PLEASE ADJUST FOR YOUR ENVIRONMENT #####
@@ -264,7 +264,7 @@ $HTMLbreak = @"
 <table>
                 <tr>
                     <td style="height: 10px;background-color: #626365;padding: 5px 0 0 15px;border-top: 5px solid white;border-bottom: none;"></td>
-						    </tr>
+                            </tr>
             </table>
 "@
 
