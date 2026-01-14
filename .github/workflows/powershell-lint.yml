@@ -4,11 +4,11 @@ on:
   pull_request:
     branches:
       - master
-      - main
     paths:
       - '**.ps1'
       - '**.psm1'
       - '**.psd1'
+  workflow_dispatch:
 
 jobs:
   lint:
